@@ -1,0 +1,9 @@
+ngx_addon_name=ngx_http_shm_dict_view_module
+
+HTTP_MODULES="$HTTP_MODULES ngx_http_shm_dict_view_module"
+NGX_ADDON_SRCS="$NGX_ADDON_SRCS 
+$ngx_addon_dir/ngx_shm_dict_view.c"
+
+CORE_INCS="$CORE_INCS $ngx_addon_dir ngx_shm_dict"
+
+CORE_LIBS="$CORE_LIBS -L$ngx_addon_dir -ldl -lstdc++"
