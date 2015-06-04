@@ -8,7 +8,7 @@ static char* ngx_http_shm_dict_view(ngx_conf_t *cf, ngx_command_t *cmd, void *co
 
 static ngx_command_t  ngx_http_shm_dict_view_commands[] = {
 
-    { ngx_string("ah_shm_dict_view"),
+    { ngx_string("ngx_shm_dict_view"),
       NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS,
       ngx_http_shm_dict_view,
       NGX_HTTP_LOC_CONF_OFFSET,
@@ -53,13 +53,13 @@ ngx_chain_t*
 ngx_http_shm_dict_resp(ngx_http_request_t *r, const char* output, int size){
 	ngx_chain_t* chain = ngx_alloc_chain_link(r->pool);
 	if(chain == NULL){
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate response chain");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate response chain");
 		return NULL;
 	}
 	
     u_char* buf = (u_char*)ngx_pcalloc(r->pool, size);
 	if(buf == NULL){
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate response buffer");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate response buffer");
         return NULL;
 	}
 	ngx_memcpy(buf, output, size);
@@ -67,7 +67,7 @@ ngx_http_shm_dict_resp(ngx_http_request_t *r, const char* output, int size){
     ngx_buf_t    *b;
     b = (ngx_buf_t*)ngx_pcalloc(r->pool, sizeof(ngx_buf_t));
     if (b == NULL) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate response buffer");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate response buffer");
         return NULL;
     }
     b->memory = 1;
@@ -98,7 +98,7 @@ ngx_http_dict_view_set(ngx_http_request_t *r) {
 	u_char *zone_name;
     zone_name = (u_char *)ngx_pcalloc(r->pool, zone.len+1);
     if(zone_name == NULL) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate zone_name");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate zone_name");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 	ngx_sprintf(zone_name,"%V",&zone);
@@ -129,7 +129,7 @@ ngx_http_dict_view_set(ngx_http_request_t *r) {
 	ngx_shm_zone_t *zone_t;
 	zone_t = ngx_http_get_shm_zone(&zone);
     if ( zone_t == NULL ) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to get_shm_zone");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to get_shm_zone");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     } 
 
@@ -138,10 +138,10 @@ ngx_http_dict_view_set(ngx_http_request_t *r) {
 	u_char* rsp = ngx_pcalloc(r->connection->pool, 1024+key.len+value.len);
 	int rsp_len = 0;
 	if(rc == 0){
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] process=[%d] operate=[set] zone=[%V] key=[%V] value=[%V] exptime=[%d] is success!\n",ngx_getpid(),&zone,&key,&value,(int)exptime)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] process=[%d] operate=[set] zone=[%V] key=[%V] value=[%V] exptime=[%d] is success!\n",ngx_getpid(),&zone,&key,&value,(int)exptime)-rsp;
 	}
 	else{
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] process=[%d] operate=[set] zone=[%V] key=[%V] value=[%V] exptime=[%d] is failed!\n",ngx_getpid(),&zone,&key,&value,(int)exptime)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] process=[%d] operate=[set] zone=[%V] key=[%V] value=[%V] exptime=[%d] is failed!\n",ngx_getpid(),&zone,&key,&value,(int)exptime)-rsp;
 	}
 
     r->headers_out.status = NGX_HTTP_OK;
@@ -154,7 +154,7 @@ ngx_http_dict_view_set(ngx_http_request_t *r) {
 		r->headers_out.content_length_n = 0;
 	}
 	
-    ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ah_shm_dict_view] %s",rsp);
+    ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ngx_shm_dict_view] %s",rsp);
 
     rc = ngx_http_send_header(r);
 
@@ -184,7 +184,7 @@ ngx_http_dict_view_get(ngx_http_request_t *r) {
 	u_char *zone_name;
     zone_name = (u_char *)ngx_pcalloc(r->pool, zone.len+1);
     if(zone_name == NULL) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate zone_name");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate zone_name");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 	ngx_sprintf(zone_name,"%V",&zone);
@@ -204,7 +204,7 @@ ngx_http_dict_view_get(ngx_http_request_t *r) {
 	ngx_shm_zone_t *zone_t;
 	zone_t = ngx_http_get_shm_zone(&zone);
     if ( zone_t == NULL ) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to get_shm_zone");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to get_shm_zone");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     } 
 
@@ -213,10 +213,10 @@ ngx_http_dict_view_get(ngx_http_request_t *r) {
 	u_char* rsp = ngx_pcalloc(r->connection->pool, 1024+key.len+value.len);
 	int rsp_len = 0;
 	if(rc == 0){
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] process=[%d] operate=[get] zone=[%V] key=[%V] value=[%V] exptime=[%d] is success!\n",ngx_getpid(),&zone,&key,&value,exptime)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] process=[%d] operate=[get] zone=[%V] key=[%V] value=[%V] exptime=[%d] is success!\n",ngx_getpid(),&zone,&key,&value,exptime)-rsp;
 	}
 	else{
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] process=[%d] operate=[get] zone=[%V] key=[%V] value=[%V] exptime=[%d] is failed!\n",ngx_getpid(),&zone,&key,&value,exptime)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] process=[%d] operate=[get] zone=[%V] key=[%V] value=[%V] exptime=[%d] is failed!\n",ngx_getpid(),&zone,&key,&value,exptime)-rsp;
 	}
 
     r->headers_out.status = NGX_HTTP_OK;
@@ -228,7 +228,7 @@ ngx_http_dict_view_get(ngx_http_request_t *r) {
 		r->headers_out.content_length_n = 0;
 	}
 
-	ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ah_shm_dict_view] %s",rsp);
+	ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ngx_shm_dict_view] %s",rsp);
     
     rc = ngx_http_send_header(r);
 
@@ -255,7 +255,7 @@ ngx_http_dict_view_del(ngx_http_request_t *r) {
 	u_char *zone_name;
     zone_name = (u_char *)ngx_pcalloc(r->pool, zone.len+1);
     if(zone_name == NULL) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate zone_name");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate zone_name");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 	ngx_sprintf(zone_name,"%V",&zone);
@@ -275,7 +275,7 @@ ngx_http_dict_view_del(ngx_http_request_t *r) {
 	ngx_shm_zone_t *zone_t;
 	zone_t = ngx_http_get_shm_zone(&zone);
     if ( zone_t == NULL ) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to get_shm_zone");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to get_shm_zone");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     } 
 
@@ -284,10 +284,10 @@ ngx_http_dict_view_del(ngx_http_request_t *r) {
 	u_char* rsp = ngx_pcalloc(r->connection->pool, 1024+key.len);
 	int rsp_len = 0;
 	if(rc == 0){
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] oprocess=[%d] perate=[del] zone=[%V] key=[%V] is success!\n",ngx_getpid(),&zone,&key)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] oprocess=[%d] perate=[del] zone=[%V] key=[%V] is success!\n",ngx_getpid(),&zone,&key)-rsp;
 	}
 	else{
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] process=[%d] operate=[del] zone=[%V] key=[%V] is failed!\n",ngx_getpid(),&zone,&key)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] process=[%d] operate=[del] zone=[%V] key=[%V] is failed!\n",ngx_getpid(),&zone,&key)-rsp;
 	}
 
     r->headers_out.status = NGX_HTTP_OK;
@@ -300,7 +300,7 @@ ngx_http_dict_view_del(ngx_http_request_t *r) {
 		r->headers_out.content_length_n = 0;
 	}
 
-	ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ah_shm_dict_view] %s",rsp);
+	ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ngx_shm_dict_view] %s",rsp);
     
     rc = ngx_http_send_header(r);
 
@@ -330,7 +330,7 @@ ngx_http_dict_view_incr(ngx_http_request_t *r) {
 	u_char *zone_name;
     zone_name = (u_char *)ngx_pcalloc(r->pool, zone.len+1);
     if(zone_name == NULL) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate zone_name");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate zone_name");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 	ngx_sprintf(zone_name,"%V",&zone);
@@ -354,7 +354,7 @@ ngx_http_dict_view_incr(ngx_http_request_t *r) {
 	ngx_shm_zone_t *zone_t;
 	zone_t = ngx_http_get_shm_zone(&zone);
     if ( zone_t == NULL ) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to get_shm_zone");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to get_shm_zone");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     } 
 
@@ -364,9 +364,9 @@ ngx_http_dict_view_incr(ngx_http_request_t *r) {
 	int rsp_len = 0;
 	
 	if(rc == 0){
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] process=[%d] operate=[incr] zone=[%V] key=[%V] n=[%d] result=[%d] is success!\n",ngx_getpid(),&zone, &key,(int)n,(int)cur)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] process=[%d] operate=[incr] zone=[%V] key=[%V] n=[%d] result=[%d] is success!\n",ngx_getpid(),&zone, &key,(int)n,(int)cur)-rsp;
     }else{
-		rsp_len = ngx_sprintf(rsp, "[ah_shm_dict_view] process=[%d] operate=[incr] zone=[%V] key=[%V] n=[%d] result=[%d] is failed!\n",ngx_getpid(),&zone, &key,(int)n,(int)cur)-rsp;
+		rsp_len = ngx_sprintf(rsp, "[ngx_shm_dict_view] process=[%d] operate=[incr] zone=[%V] key=[%V] n=[%d] result=[%d] is failed!\n",ngx_getpid(),&zone, &key,(int)n,(int)cur)-rsp;
 	}
 
     r->headers_out.status = NGX_HTTP_OK;
@@ -378,7 +378,7 @@ ngx_http_dict_view_incr(ngx_http_request_t *r) {
 		r->headers_out.content_length_n = 0;
 	}
 	
-	ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ah_shm_dict_view] %s",rsp);
+	ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ngx_shm_dict_view] %s",rsp);
 
     rc = ngx_http_send_header(r);
 
@@ -400,12 +400,12 @@ ngx_http_shm_dict_view_handler(ngx_http_request_t *r)
     u_char *uri;
     uri = (u_char *)ngx_pcalloc(r->pool, r->uri.len+1);
     if (uri == NULL) {
-		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ah_shm_dict_view] failed to allocate uri");
+		ngx_log_error(NGX_LOG_ERR,r->connection->log,0,"[ngx_shm_dict_view] failed to allocate uri");
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
     ngx_sprintf(uri, "%V", &r->uri);
 
-    ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ah_shm_dict_view] uri %s",uri);
+    ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,"[ngx_shm_dict_view] uri %s",uri);
 
     if( ngx_strcmp(uri,"/get") == 0 ) {
         return ngx_http_dict_view_get(r);
